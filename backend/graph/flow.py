@@ -1,6 +1,7 @@
 from typing import TypedDict
 from langgraph.graph import StateGraph, END
 from llm.gateway import get_answer
+from retrieval.retriever import get_context_and_sources
 
 class ChatState(TypedDict):
     question: str
@@ -9,12 +10,14 @@ class ChatState(TypedDict):
     sources: list
 
 def receive_question(state: ChatState) -> ChatState:
-    print(f"Question: {state['question']}")
+    print(f"Question received: {state['question']}")
     return state
 
 def retrieve_documents(state: ChatState) -> ChatState:
-    state["context"] = "NETSOL Technologies is a global software company founded in 1995. It provides IT services and solutions for leasing, financing, and asset management industries. NETSOL is headquartered in Calabasas, California, USA."
-    state["sources"] = ["netsol.com/about"]
+    context, sources = get_context_and_sources(state["question"])
+    state["context"] = context
+    state["sources"] = sources
+    print(f"Retrieved {len(sources)} sources")
     return state
 
 def generate_answer(state: ChatState) -> ChatState:

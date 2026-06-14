@@ -13,18 +13,22 @@ index = faiss.read_index("data/cleaned/netsol.index")
 def retrieve(query: str, top_k: int = 5):
     query_embedding = model.encode([query])
     distances, indices = index.search(np.array(query_embedding), top_k)
-    
+
     results = []
-    for i in indices[0]:
-        if i < len(chunks):
+    for i, dist in zip(indices[0], distances[0]):
+        # Distance threshold — zyada door ke chunks reject karo
+        if i < len(chunks) and dist < 1.5:
             results.append(chunks[i])
-    
+
     return results
 
 def get_context_and_sources(query: str):
-    results = retrieve(query, top_k=5)
-    
+    results = retrieve(query)
+
+    if not results:
+        return "", []
+
     context = "\n\n".join([r["text"] for r in results])
     sources = list(set([r["url"] for r in results]))
-    
+
     return context, sources

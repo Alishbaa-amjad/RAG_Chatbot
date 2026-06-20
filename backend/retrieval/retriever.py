@@ -10,14 +10,14 @@ with open("data/cleaned/netsol_chunks.json", "r", encoding="utf-8") as f:
 
 index = faiss.read_index("data/cleaned/netsol.index")
 
-def retrieve(query: str, top_k: int = 5):
+def retrieve(query: str, top_k: int = 8):
     query_embedding = model.encode([query])
     distances, indices = index.search(np.array(query_embedding), top_k)
 
     results = []
     for i, dist in zip(indices[0], distances[0]):
         # Distance threshold — zyada door ke chunks reject karo
-        if i < len(chunks) and dist < 1.5:
+        if i < len(chunks) and dist < 2.5:
             results.append(chunks[i])
 
     return results
